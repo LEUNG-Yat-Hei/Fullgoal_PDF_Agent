@@ -158,11 +158,14 @@ if generating:
             counts: dict[str, int] = {}
             log: list[str] = []
 
-            def on_tool_call(tool_name: str) -> None:
-                counts[tool_name] = counts.get(tool_name, 0) + 1
-                line = f"`{time.perf_counter() - started:5.0f}s` {TOOL_LABELS.get(tool_name, tool_name)}"
+            def write_log(message: str) -> None:
+                line = f"`{time.perf_counter() - started:5.0f}s` {message}"
                 log.append(line)
                 st.write(line)
+
+            def on_tool_call(tool_name: str) -> None:
+                counts[tool_name] = counts.get(tool_name, 0) + 1
+                write_log(TOOL_LABELS.get(tool_name, tool_name))
 
             try:
                 with tempfile.TemporaryDirectory() as tmpdir:
@@ -173,6 +176,7 @@ if generating:
                 st.session_state.last_run = {"label": "Report generation failed", "state": "error", "log": log, "error": e}
                 st.session_state.notice = {"title": "Report generation failed", "body": f"{job['name']}: {e}"}
             else:
+                write_log("Finished generating the report")
                 elapsed = time.perf_counter() - started
                 charts = counts.get("create_chart", 0)
                 label = f"Report ready in {elapsed:.0f}s ({charts} chart{'s' if charts != 1 else ''} drawn)"

@@ -73,6 +73,10 @@ class ToolLogger:
         self.logger.info(f"{_color('✓', _Ansi.GREEN)} {name} {_color(f'{elapsed:.2f}s', _Ansi.GRAY)} {self._preview(result)}")
         return result
 
+    def done(self, name: str, elapsed: float, detail: Any) -> None:
+        """Log a finished step that is not a tool call, in the same format as a tool's success line."""
+        self.logger.info(f"{_color('✓', _Ansi.GREEN)} {name} {_color(f'{elapsed:.2f}s', _Ansi.GRAY)} {self._preview(detail)}")
+
     def _preview(self, value: Any) -> str:
         text = repr(value)  # repr escapes newlines, so each log entry stays on one line
         if len(text) > self.preview_len:
